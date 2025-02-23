@@ -96,16 +96,16 @@ void ft_mutexinit(int num_philos, t_mutex *mu)
 	i = 0;
 	//mu->fork = malloc(sizeof(pthread_mutex_t) * num_philos);
 	mu->fork = calloc(sizeof(pthread_mutex_t), num_philos);
-        while(i < num_philos)
-        {
-                if(pthread_mutex_init(&mu->fork[i], NULL))
-                {
-                        printf("mutex init fail\n");
-                        exit(1);
-                }
-                i++;
-        }
-        pthread_mutex_init(&mu->print, NULL);
+	while(i < num_philos)
+	{
+		if(pthread_mutex_init(&mu->fork[i], NULL))
+		{
+			printf("mutex init fail\n");
+			exit(1);
+		}
+		i++;
+	}
+	pthread_mutex_init(&mu->print, NULL);
 	pthread_mutex_init(&mu->monitoring_lock, NULL);
 }
 #include <unistd.h>
@@ -123,7 +123,6 @@ int main(int ac, char **av)
 	num_philos = ft_atoi(av[1]);
 	//philos = malloc(sizeof(struct s_philo) * num_philos + 1);
 	ft_avtoint(ac, av, num_philos, &philos);
-	printf("%d\n", 3);
 	ft_mutexinit(num_philos, &mu);
 	ft_forklocation(num_philos, philos, &mu);
 	ft_pthreadcreate(philos, num_philos);

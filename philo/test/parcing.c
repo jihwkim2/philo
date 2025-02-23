@@ -41,6 +41,7 @@ int get_time(t_philo *philo)
 
 
 	now_time = what_time();
+	//printf("current == %ld\n", philo->current);
 	timestamp = now_time - philo->current;
 	return (timestamp);
 }
@@ -62,19 +63,40 @@ void	put_msg(int flag, t_philo *philo)
 		printf("%dms %d died\n", get_time(philo), philo->number);
 	pthread_mutex_unlock(philo->pub_mtx);
 }
+/*
+void die_check(t_philo *philo)
+{
+	 while (1)
+    {
+        elapsed_time = get_time(philo) - start_time;
+        if (elapsed_time >= philo->time_to_die)
+        {
+            put_msg(5, philo);
+            return;
+        }
+        usleep(1000);
+        if (elapsed_time >= time_to_sleep)
+            break;
+    }
+}
+*/
 
 void mili_sleep(int time_to_sleep, t_philo *philo)
 {
-	philo->current_time = get_time(philo);
 
-	printf("time == %d",philo->current_time - philo->last_meal);
-	usleep(time_to_sleep * 1000);
+	philo->current_time = get_time(philo);
+	//printf("time == %ld\n" ,time);
+	//printf("last_meal == %d\n", philo->last_meal);
+	//usleep(time_to_sleep * 1000);
+	usleep(philo->time_to_sleep * 1000);
+	//printf("asdasdasd == %d\n", philo->current_time - philo->last_meal);
 	if (philo->current_time - philo->last_meal >= philo->time_to_die)
 	{
-		printf("time == %d",philo->current_time - philo->last_meal >= philo->time_to_die );
+		//printf("currenttime == %ld\n",current_time - philo->last_meal);
 		put_msg(5, philo);
 		return ;
 	}
+	
 
 }
 
@@ -89,8 +111,10 @@ void ft_pickfork(t_philo *philo)
 void ft_musteat(t_philo *philo)
 {
 	put_msg(1, philo);
-	mili_sleep(philo->time_to_eat, philo);
+	if (get_time(philo) - philo->last_meal > philo->time_to_die)
+		printf("\tphilo %d \tlast_meal == %d\n", philo->number,  philo->last_meal);
 	philo->last_meal = get_time(philo);
+	mili_sleep(philo->time_to_eat, philo);
 	pthread_mutex_unlock(&philo->mutex->fork[philo->left]);
 	pthread_mutex_unlock(&philo->mutex->fork[philo->right]);
 }
@@ -105,7 +129,8 @@ void ft_sleep(t_philo *phil)
 // ./philo 2 210 100 50
 int ft_getfork(struct s_philo *phil)
 {
-	printf("phil: %d\n", phil->number);
+	//printf("phil: %d\n", phil->number);
+	phil->last_meal = get_time(phil);
 	if (phil->number % 2 != 0)
 		mili_sleep(phil->time_to_eat - 10, phil);
 	while(1)
@@ -139,7 +164,7 @@ int ft_pthreadcreate(struct s_philo *philo, int np)
 
 	i = 0;
 	pthread_mutex_init(&pub_mutex, NULL);
-	//philo->current = what_time();
+	philo->current = what_time();
 	while (np >= i)
 	{
 		philo[i].pub_mtx = &pub_mutex;
@@ -157,7 +182,7 @@ int ft_pthreadcreate(struct s_philo *philo, int np)
 	i = 0;
 	while(np >= i)
 	{
-		printf("%d\n", i);
+		//printf("%d\n", i);
 		pthread_join((philo[i]).thread, NULL); // thread를 기다림.
 											   // main thread
 		i++;

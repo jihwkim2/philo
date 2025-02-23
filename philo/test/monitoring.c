@@ -27,9 +27,10 @@ int kill_philo(t_philo *philo)
         time = get_time(philo);
         if (time - philo->last_meal > philo->time_to_die)
         {
-                stop_flag(philo, 1);
-                put_msg(5, philo);
-				return (1);
+			printf("\nEND\n");
+			stop_flag(philo, 1);
+            put_msg(5, philo);
+			return (1);
         }
         return (2);
 }
@@ -43,7 +44,7 @@ int ft_enough_eat(t_philo *philo)
 	i = 0;
 	while (i < philo->num_of_philos)
     {
-		pthread_mutex_lock(&philo[i].mutex->monitoring_lock);
+		pthread_mutex_lock(&philo->mutex->monitoring_lock);
 		if (kill_philo(philo) == 1)
 			return (1);
 	/*
@@ -53,7 +54,7 @@ int ft_enough_eat(t_philo *philo)
     	enough_eat = 2;
 	}
 	*/
-		pthread_mutex_unlock(&philo[i].mutex->monitoring_lock);
+		pthread_mutex_unlock(&philo->mutex->monitoring_lock);
 			i++;
 	}
 	if (enough_eat == 1)
@@ -69,10 +70,11 @@ void *monitoring(void *argument)
         t_philo *philo;
 
         philo = (t_philo *)argument;
-        if(philo->must_eat == 0)
-                return (NULL);
+//        if(philo->must_eat == 0)
+//                return (NULL);
         stop_flag(philo, 2);
-        while(kill_philo(philo) == 1)
+		philo->last_meal = get_time(philo);
+        while(kill_philo(philo) == 2)
         {
                 if (ft_enough_eat(philo) == 1)
                         return (NULL);
